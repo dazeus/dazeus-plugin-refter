@@ -71,8 +71,12 @@ while($dazeus->handleEvents()) {}
 sub getDayKey {
 	my ($day) = @_;
 
+	if (!defined($day)) {
+		return localtime->wday();
+	}
+
 	# The #ru regulars like their puns, so let's shorten this.
-	$day = lc(substr($day, 0, 2)) if($day);
+	$day = lc(substr($day, 0, 2));
 
 	# A specific request!
 	if ($day and exists $dayToIndex{$day}) {
@@ -130,8 +134,12 @@ sub fetchMenuByDay {
 		# Perchance there's additional price info -- we already know!
 		$menu =~ s/Prijs\s*:[^\n]*\n//s;
 
+		# Throw away anything that's not an ASCII character to get rid of unicode chunks.
+		$menu =~ s/[\x80-\xFF]//sg;
+
 		# Trim any leading and trailing whitespace.
-		$menu =~ s/^\s+(.+?)\s+$/$1/s;
+		$menu =~ s/^\s+(.+?)\s+$/$1/sg;
+		$menu =~ s/\n\s+/\n/;
 
 		# Strip superfluous information
 		$menu =~ s/\(\s*['`]s[ -]avonds\s*\)\s?//;
