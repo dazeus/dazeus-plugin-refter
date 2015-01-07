@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # Refter menu plugin for DaZeus
-# Copyright (C) 2011  Aaron van Geffen <aaron@aaronweb.net>
+# Copyright (C) 2011-2015  Aaron van Geffen <aaron@aaronweb.net>
 # Original module (C) 2010  Gerdriaan Mulder <har@mrngm.com>
 
 use strict;
@@ -10,8 +10,7 @@ use Time::localtime;
 use XML::DOM::XPath;
 use LWP::Simple;
 
-my ($socket) = @ARGV;
-
+my $socket = shift;
 if (!$socket) {
 	warn "Usage: $0 socket\n";
 	exit 1;
@@ -69,7 +68,7 @@ while($dazeus->handleEvents()) {}
 #####################################################################
 
 sub getDayKey {
-	my ($day) = @_;
+	my $day = shift;
 
 	if (!defined($day)) {
 		return localtime->wday();
@@ -98,7 +97,7 @@ sub getDayKey {
 
 # NOTE: this sub assumes $day to be an integer in [0..6]
 sub pickMenuUrl {
-	my ($day) = @_;
+	my $day = shift;
 
 	my $next_week = localtime->wday() > $day;
 	# except when it's sunday, then always take next week
@@ -108,12 +107,17 @@ sub pickMenuUrl {
 }
 
 sub fetchMenuByDay {
-	my ($day) = @_;
+	my $day = shift;
 	my $tree = XML::DOM::Parser->new();
 
 	$day = getDayKey($day);
 
-	my $doc = $tree->parse(get(pickMenuUrl($day)));
+	my $feed = get(pickMenuUrl($day));
+	if (!defined $feed) {
+		return (undef, undef);
+	}
+
+	my $doc = $tree->parse($feed);
 	my ($menu_day, $menu);
 
 	foreach ($doc->findnodes('//item')) {
