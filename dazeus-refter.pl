@@ -104,7 +104,7 @@ sub pickMenuUrl {
 	# except when it's sunday, then always take next week
 	$next_week = 1 if(localtime->wday() == 0);
 
-	return "http://www.ru.nl/facilitairbedrijf/horeca/refter-0/weekmenu-refter/menu-" . ($next_week ? "komende" : "deze") . "-week/?rss=true";
+	return "http://www.ru.nl/facilitairbedrijf/horeca/de-refter/weekmenu-refter/menu-" . ($next_week ? "komende" : "deze") . "-week/?rss=true";
 }
 
 sub fetchMenuByDay {
