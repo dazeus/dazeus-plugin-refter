@@ -28,23 +28,25 @@ my @daysOfWeek = qw(zo ma di wo do vr za zo);
 $dazeus->subscribe_command("noms" => \&fetchMenu);
 $dazeus->subscribe_command("refter" => \&fetchMenu);
 
+while($dazeus->handleEvents()) {}
+
 sub fetchMenu {
 	my ($self, $network, $sender, $channel, $command, @rest) = @_;
 	my ($response, $day, $noms);
 
 	# Any specific day?
 	if ($rest[0]) {
-		($day, $noms) = fetchMenuByDay($rest[0]);
+		($day, $noms) = processMenuFeed($rest[0]);
 	}
 	# Tomorrow?
 	elsif (localtime->hour() >= 19) {
 		$response = "Na 19 uur zijn er geen refternoms meer. Daarom krijg je de refternoms van morgen te zien ;-)\n";
-		($day, $noms) = fetchMenuByDay("morgen");
+		($day, $noms) = processMenuFeed("morgen");
 	}
 	# Just today, please.
 	else {
 		$response = "Wat heeft de Refter vandaag in de aanbieding...\n";
-		($day, $noms) = fetchMenuByDay();
+		($day, $noms) = processMenuFeed();
 	}
 
 	# There's something to eat, right?
@@ -64,11 +66,11 @@ sub fetchMenu {
 	}
 }
 
-while($dazeus->handleEvents()) {}
 
 #####################################################################
 #                          MODEL FUNCTIONS
 #####################################################################
+
 
 sub getDayKey {
 	my $day = shift;
@@ -111,7 +113,7 @@ sub pickMenuUrl {
 	return $url;
 }
 
-sub fetchMenuByDay {
+sub processMenuFeed {
 	my $day = shift;
 	my $tree = XML::DOM::Parser->new();
 
