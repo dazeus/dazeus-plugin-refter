@@ -153,9 +153,6 @@ sub fetchMenuByDay {
 		$menu =~ s/^\s+(.+?)\s+$/$1/sg;
 		$menu =~ s/\n\s+/\n/;
 
-		# Strip superfluous information
-		$menu =~ s/\(\s*['`]s[ -]avonds\s*\)\s?//;
-
 		last;
 	}
 
