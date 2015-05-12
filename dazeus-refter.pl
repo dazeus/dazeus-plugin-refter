@@ -25,7 +25,10 @@ my $dazeus = DaZeus->connect($socket);
 my %dayToIndex = ("zo" => 0, "ma" => 1, "di" => 2, "wo" => 3, "do" => 4, "vr" => 5, "za" => 6);
 my @daysOfWeek = qw(zo ma di wo do vr za zo);
 
-$dazeus->subscribe_command("noms" => sub {
+$dazeus->subscribe_command("noms" => \&fetchMenu);
+$dazeus->subscribe_command("refter" => \&fetchMenu);
+
+sub fetchMenu {
 	my ($self, $network, $sender, $channel, $command, @rest) = @_;
 	my ($response, $day, $noms);
 
@@ -59,7 +62,7 @@ $dazeus->subscribe_command("noms" => sub {
 	} else {
 		$dazeus->message($network, $channel, $response);
 	}
-});
+}
 
 while($dazeus->handleEvents()) {}
 
