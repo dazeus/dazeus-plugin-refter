@@ -135,6 +135,11 @@ sub fetchMenuByDay {
 		# What day is it, again?
 		$menu_day = lc(($title =~ /([A-z]+dag \d+ [a-z]+):?/)[0]);
 
+		# Is the Refter even open today?
+		if (!($_->getElementsByTagName('description')->item(0)->hasChildNodes())) {
+			last;
+		}
+
 		# Fetch the menu for the day.
 		$menu = $_->getElementsByTagName('description')->item(0)->getFirstChild()->getNodeValue();
 
