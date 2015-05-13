@@ -31,12 +31,12 @@ $dazeus->subscribe_command("refter" => \&fetchMenu);
 while($dazeus->handleEvents()) {}
 
 sub fetchMenu {
-	my ($self, $network, $sender, $channel, $command, @rest) = @_;
+	my ($self, $network, $sender, $channel, $command, $rest) = @_;
 	my ($response, $day, $noms);
 
 	# Any specific day?
-	if ($rest[0]) {
-		($day, $noms) = processMenuFeed($rest[0]);
+	if ($rest) {
+		($day, $noms) = processMenuFeed($rest);
 	}
 	# Tomorrow?
 	elsif (localtime->hour() >= 19) {
