@@ -1,13 +1,12 @@
 #!/usr/bin/perl
 # Refter menu plugin for DaZeus
-# Copyright (C) 2011-2015  Aaron van Geffen <aaron@aaronweb.net>
+# Copyright (C) 2011-2017  Aaron van Geffen <aaron@aaronweb.net>
 # Original module (C) 2010  Gerdriaan Mulder <har@mrngm.com>
 
 use strict;
 use warnings;
 use DaZeus;
 use Time::localtime;
-use XML::DOM::XPath;
 use LWP::Simple;
 
 my $socket = shift;
@@ -59,11 +58,7 @@ sub fetchMenu {
 	}
 
 	# Send it in the appropriate manner.
-	if ($channel eq $dazeus->getNick($network)) {
-		$dazeus->message($network, $sender, $response);
-	} else {
-		$dazeus->message($network, $channel, $response);
-	}
+	$self->reply($response, $network, $sender, $channel);
 }
 
 
@@ -108,61 +103,49 @@ sub pickMenuUrl {
 	# except when it's sunday, then always take next week
 	$next_week = 1 if(localtime->wday() == 0);
 
-	my $url = "http://www.ru.nl/facilitairbedrijf/horeca/de-refter/weekmenu-refter/menu-" . ($next_week ? "komende" : "deze") . "-week/?rss=true";
+	my $url = "http://www.ru.nl/facilitairbedrijf/horeca/de-refter/weekmenu-refter/menu-soep-" . ($next_week ? "komende" : "deze") . "-week/";
 	print "[refter][" . CORE::localtime() . "] Fetching menu from ", $url, "\n";
 	return $url;
 }
 
 sub processMenuFeed {
 	my $day = shift;
-	my $tree = XML::DOM::Parser->new();
-
 	$day = getDayKey($day);
 
-	my $feed = get(pickMenuUrl($day));
-	if (!defined $feed) {
+	# Load the relevant menu page.
+	my $page = get(pickMenuUrl($day));
+	if (!defined $page) {
 		return (undef, undef);
 	}
 
-	my $doc = $tree->parse($feed);
-	my ($menu_day, $menu);
+	# Extract the relevant layer from the page.
+	my $menu_container;
+	if ($page =~ m!<div class="iprox-rich-content iprox-content">(.+?)<\/div>!s) {
+		$menu_container = $1;
+	} else {
+		return (undef, undef);
+	}
 
-	foreach ($doc->findnodes('//item')) {
-		# The title is used to determine whether we have the right day.
-		my $title = $_->getElementsByTagName('title')->item(0)->getFirstChild()->getNodeValue();
+	# Iterate over day menus.
+	while ($menu_container =~ m!<p><strong>(.+?)</strong><\/p>\s*<ul>\s*((?:<li><span[^>]*>[^<]+?<\/span>\s*)*)</ul>!sg) {
+		my $menu_day = $1;
+		my $menu_items = $2;
 
-		# If this item is not relevant to the query, skip it.
-		if ($day != $dayToIndex{lc(substr($title, 0, 2))}) {
+		# If this is not the menu for day we were looking for, continue...
+		if ($day != $dayToIndex{lc(substr($menu_day, 0, 2))}) {
 			next;
 		}
 
-		# What day is it, again?
-		$menu_day = lc(($title =~ /([A-z]+dag \d+ [a-z]+):?/)[0]);
-
-		# Is the Refter even open today?
-		if (!($_->getElementsByTagName('description')->item(0)->hasChildNodes())) {
-			last;
+		# Otherwise, enumerate the menu!
+		my $menu = "";
+		while ($menu_items =~ m!<li><span[^>]*>([^<]+?)<\/span>!sg) {
+			$menu .= $1 . "\n";
 		}
 
-		# Fetch the menu for the day.
-		$menu = $_->getElementsByTagName('description')->item(0)->getFirstChild()->getNodeValue();
-
-		# Perchance there's additional price info -- we already know!
-		$menu =~ s/Prijs\s*:[^\n]*\n//s;
-
-		# Throw away anything that's not an ASCII character to get rid of unicode chunks.
-		$menu =~ s/[\x80-\xFF]//sg;
-
-		# Trim any leading and trailing whitespace.
-		$menu =~ s/^\s+(.+?)\s+$/$1/sg;
-		$menu =~ s/\n\s+/\n/;
-
-		last;
+		# And return it!
+		return ($menu_day, $menu);
 	}
 
-	if (!defined $menu_day) {
-		$menu_day = $daysOfWeek[$day];
-	}
-
-	return ($menu_day, $menu);
+	# Apparently, we did not find a match.
+	return (undef, undef);
 }
