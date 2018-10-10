@@ -39,18 +39,18 @@ sub fetchMenu {
 	}
 	# Tomorrow?
 	elsif (localtime->hour() >= 19) {
-		$response = "Na 19 uur zijn er geen refternoms meer. Daarom krijg je de refternoms van morgen te zien ;-)\n";
+		$response = "Na 19 uur zijn er geen gerechten meer. Daarom krijg je de gerechten van morgen te zien ;-)\n";
 		($day, $noms) = processMenuFeed("morgen");
 	}
 	# Just today, please.
 	else {
-		$response = "Wat heeft de Refter vandaag in de aanbieding...\n";
+		$response = "Wat heeft het Gerecht vandaag in de aanbieding...\n";
 		($day, $noms) = processMenuFeed();
 	}
 
 	# There's something to eat, right?
 	if (defined $noms) {
-		$response .= "Eten bij de Refter op " . $day . ":\n" . $noms;
+		$response .= "Eten bij het Gerecht op " . $day . ":\n" . $noms;
 	}
 	# No noms whatsoever?! THE AGONY!
 	else {
@@ -103,7 +103,8 @@ sub pickMenuUrl {
 	# except when it's sunday, then always take next week
 	$next_week = 1 if(localtime->wday() == 0);
 
-	my $url = "http://www.ru.nl/facilitairbedrijf/horeca/de-refter/weekmenu-refter/menu-soep-" . ($next_week ? "komende" : "deze") . "-week/";
+	#my $url = "http://www.ru.nl/facilitairbedrijf/horeca/de-refter/weekmenu-refter/menu-soep-" . ($next_week ? "komende" : "deze") . "-week/";
+	my $url = "https://www.ru.nl/facilitairbedrijf/horeca/het-gerecht-grotiusgebouw/menu-8-12-oktober/";
 	print "[refter][" . CORE::localtime() . "] Fetching menu from ", $url, "\n";
 	return $url;
 }
