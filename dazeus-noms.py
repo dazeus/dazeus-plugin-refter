@@ -56,9 +56,10 @@ class HetGerecht(NomsSupplier):
             return []
 
         html = response.read()
-        bs = BeautifulSoup(html)
+        bs = BeautifulSoup(html, 'html5lib')
         menu_node = bs.find("div", class_="rol-inhoud")
         if not menu_node:
+            print("Could not find menu node for Het Gerecht")
             return []
 
         nodes = menu_node.find_all(['p', 'li'])
@@ -68,6 +69,10 @@ class HetGerecht(NomsSupplier):
         for node in nodes:
             # First, make sure we've found the right date.
             if node.name == 'p':
+                # Hang on, does this mean we've got the full set already?
+                if describes_today:
+                    break
+
                 describes_today = today in node.get_text().lower()
                 continue
 
