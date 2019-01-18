@@ -326,6 +326,7 @@ class DaZeusNoms(object):
         if not menu:
             excuse = 'Sorry, I was unable to get a menu for ' + supplier.friendly_name + ' for ' + concerningDay
             reply(excuse)
+            return
 
         # Announce it properly...
         reply('Here\'s the menu for ' + supplier.friendly_name + ' for ' + concerningDay + ':')
