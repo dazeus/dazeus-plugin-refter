@@ -63,10 +63,6 @@ class HetGerecht(NomsSupplier):
         elif dt.weekday() == 4:
             return dt.hour >= 11 and dt.hour < 16
 
-        # ... What planet is this?
-        else:
-            raise ValueError('Encountered an unexpected weekday.')
-
     @staticmethod
     def willOpen(dt=datetime.now()):
         # Monday to Friday
@@ -87,10 +83,6 @@ class HetGerecht(NomsSupplier):
         elif dt.weekday() <= 4:
             return dt.hour == 12 or (dt.hour == 13 and dt.minute < 30)
 
-        # ... What planet is this?
-        else:
-            raise ValueError('Encountered an unexpected weekday.')
-
     @staticmethod
     def isOpenForDinner(dt=datetime.now()):
         # Closed on Friday and during the weekend
@@ -100,8 +92,3 @@ class HetGerecht(NomsSupplier):
         # Monday to Thursday: 17:00 until 19:00
         elif dt.weekday() < 4:
             return dt.hour >= 17 and dt.hour < 19
-
-        # ... What planet is this?
-        else:
-            raise ValueError('Encountered an unexpected weekday.')
-

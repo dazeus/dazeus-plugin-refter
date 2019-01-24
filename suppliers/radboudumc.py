@@ -53,18 +53,12 @@ class RadboudUMC(NomsSupplier):
         elif dt.weekday() >= 5:
             return dt.hour >= 11 and dt.hour < 20
 
-        # ... What planet is this?
-        else:
-            raise ValueError('Encountered an unexpected weekday.')
-
     @staticmethod
     def willOpen(dt=datetime.now()):
         if dt.weekday() < 5:
             return dt.hour < 8
         elif dt.weekday() >= 5:
             return dt.hour < 11
-        else:
-            raise ValueError('Encountered an unexpected weekday.')
 
     @staticmethod
     def isOpenForLunch(dt=datetime.now()):
