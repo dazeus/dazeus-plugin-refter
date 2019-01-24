@@ -4,11 +4,12 @@ import argparse
 
 from datetime import datetime, timedelta
 from dazeus import DaZeus
-from suppliers import HetGerecht, RadboudUMC
+from suppliers import DeFest, HetGerecht, RadboudUMC
 from suppliers.utils import DateFormatter
 
 class DaZeusNoms(object):
     suppliers = {
+        'fest': DeFest,
         'gerecht': HetGerecht,
         'umc': RadboudUMC,
     }
