@@ -74,7 +74,7 @@ class HetGerecht(NomsSupplier):
             return dt.hour < 11
 
         # Closed during the weekend
-        elif dt.weekday() > 5:
+        elif dt.weekday() >= 5:
             return False
 
     @staticmethod
