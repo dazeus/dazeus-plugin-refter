@@ -46,6 +46,7 @@ class DaZeusNoms(object):
             # Tomorrow?
             elif when in ['tomorrow', 'morgen']:
                 dt = now + timedelta(days=1)
+                dt = dt.replace(hour=12)
             # Day of the week?
             else:
                 when = when[0:2]
@@ -61,7 +62,7 @@ class DaZeusNoms(object):
                 if when >= 0:
                     offset = when - dt.weekday()
                     dt += timedelta(days=offset)
-                    dt.replace(hour=12)
+                    dt = dt.replace(hour=12)
 
         # Fall back to today
         else:
