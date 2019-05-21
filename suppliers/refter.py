@@ -35,7 +35,7 @@ class Refter(NomsSupplier):
                 continue
 
             # The menu is actually in a neighbouring list.
-            menu = nodes[0].next_sibling.next_element
+            menu = node.next_sibling.next_element
 
             # Copy the lines without any HTML.
             for menu_entry in menu.find_all('li'):
